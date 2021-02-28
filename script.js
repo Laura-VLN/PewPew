@@ -10,8 +10,15 @@ var dx = 2;
 
 function drawCannon() {
 
-    ctx.beginPath();
     ctx.fillRect(x, y, 40, 40);
+
+}
+
+function drawProjectile() {
+
+    ctx.beginPath();
+    ctx.arc(50, 50, 10, 0, Math.PI*2);
+    ctx.fill();
     ctx.closePath();
 
 }
@@ -33,6 +40,10 @@ function draw() {
         x += dx;
     }
 
+    drawProjectile();
+
+    window.requestAnimationFrame(draw);
+
 }
 
-setInterval(draw, 5);
+window.requestAnimationFrame(draw);
