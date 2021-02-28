@@ -4,6 +4,11 @@ var ctx = canvas.getContext('2d');
 canvas.width = 1000;
 canvas.height = 750;
 
+canvas.left = document.querySelector("canvas").offsetLeft;
+canvas.right = canvas.left + canvas.width;
+canvas.top = document.querySelector("canvas").offsetTop;
+canvas.bottom = canvas.top + canvas.height;
+
 var x = 480;
 var y = 710;
 var dx = 5;
@@ -12,7 +17,6 @@ var xProj = 480;
 var yProj = 710;
 var vx = 3;
 var vy = -3;
-var running = false;
 
 function drawPacman() {
     ctx.beginPath();
@@ -98,15 +102,19 @@ function draw() {
 
 }
 
-canvas.addEventListener('mousemove', function(e){
-    if (!running) {
-      x = e.clientX - 500;
-      drawPacman();
+canvas.addEventListener('mousemove', function(e) {
+    x = e.clientX - canvas.left;
+
+    if ((x - 20) <= 0) {
+        x = 20;
+    }
+    else if ((x + 20) >= canvas.width) {
+        x = canvas.width - 20;
     }
 });
 
-canvas.addEventListener('mousemove', () => {
+/*canvas.addEventListener('click', () => {
 
-});
+});*/
 
 window.requestAnimationFrame(draw);
