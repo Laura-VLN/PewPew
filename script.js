@@ -8,10 +8,23 @@ var x = 480;
 var y = 710;
 var dx = 5;
 
+var xProj = 480;
+var yProj = 710;
+var vx = 3;
+var vy = -3;
+var running = false;
+
 function drawPacman() {
     ctx.beginPath();
     ctx.arc(x, y, 20, (Math.PI/180)*290, (Math.PI/180)*250, false);
     ctx.lineTo(x, y);
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawProjectile() {
+    ctx.beginPath();
+    ctx.arc(xProj, (yProj + 2), 4, 0, Math.PI*2);
     ctx.fill();
     ctx.closePath();
 }
@@ -57,19 +70,17 @@ function drawGhost() {
     
 }
 
-function drawProjectile() {
-    ctx.beginPath();
-    ctx.arc(50, 50, 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.closePath();
-}
-
 function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawPacman();
 
-    if ((x + 20) < (canvas.width - 10)) {
+    drawProjectile();
+    xProj += vx;
+    yProj += vy;
+
+    /*if ((x + 20) < (canvas.width - 10)) {
         x += dx;
     }
     if ((x + 20) == (canvas.width - 10)) {
@@ -79,13 +90,23 @@ function draw() {
     if ((x - 20) == 10) {
         dx = 5;
         x += dx;
-    }
+    }*/
 
-    drawProjectile();
     drawGhost();
 
     window.requestAnimationFrame(draw); //plus fluide que setInterval -> s'adapte aux capacités du navigateur
 
 }
+
+canvas.addEventListener('mousemove', function(e){
+    if (!running) {
+      x = e.clientX - 500;
+      drawPacman();
+    }
+});
+
+canvas.addEventListener('mousemove', () => {
+
+});
 
 window.requestAnimationFrame(draw);
