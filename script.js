@@ -102,6 +102,9 @@ class Ghost {
         ghosts_count -+ 1;
         this.draw;
     }
+    destroy() {
+        ghosts.shift(this);
+    }
 }
 
 function projectileDestroy() {
@@ -110,13 +113,11 @@ function projectileDestroy() {
 
 function ghostRepop() {
     if (projectile.posX >= ghost.x && projectile.posX <= ghost.x+28 && projectile.posY >= ghost.y) {
-        ghosts.shift();
+        ghost.destroy();
         ghost.draw();
     }
 }
 console.log(ghosts)
-console.log(randomX)
-console.log(randomY)
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
