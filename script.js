@@ -46,6 +46,11 @@ class Projectile {
     move() {
         this.posY -= this.speed;
     }
+    create() {
+        projectiles.push(this);
+        this.draw();
+        projectiles_count += 1;
+    }
 }
 
 class Ghost {
@@ -92,30 +97,21 @@ class Ghost {
         ctx.arc(this.x+6, this.y-14, 2, 0, Math.PI * 2, true);
         ctx.fill();
     }
-}
-
-function createProjectile() {
-    projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 3);
-    projectiles.push(projectile);
-    projectile.draw();
-    projectiles_count += 1;
+    create() {
+        ghosts.push(this);
+        ghosts_count -+ 1;
+        this.draw;
+    }
 }
 
 function projectileDestroy() {
     if (projectile.posY < 0) {projectiles.shift()};
 }
 
-function createGhost() {
-    ghost = new Ghost(ghosts_count, randomX, randomY);
-    ghosts.push(ghost);
-    ghost.draw();
-    ghosts_count += 1;
-}
-
 function ghostRepop() {
     if (projectile.posX >= ghost.x && projectile.posX <= ghost.x+28 && projectile.posY >= ghost.y) {
-        ghosts.shift()
-        createGhost();
+        ghosts.shift();
+        ghost.draw();
     }
 }
 console.log(ghosts)
@@ -126,6 +122,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     pacman.draw();
+    ghost = new Ghost(ghosts_count, randomX, randomY);
     ghost.draw();
     
     projectiles.forEach(projectile => {
@@ -150,7 +147,8 @@ canvas.addEventListener('mousemove', function(e) {
 });
 
 canvas.addEventListener('click', () => {
-    createProjectile();
+    projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 3);
+    projectile.create()
 });
 
 window.requestAnimationFrame(draw);
