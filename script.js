@@ -1,36 +1,39 @@
-var canvas = document.querySelector("canvas");
-var ctx = canvas.getContext('2d');
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext('2d');
 
 canvas.width = 1000;
 canvas.height = 750;
-
 canvas.left = document.querySelector("canvas").offsetLeft;
 canvas.right = canvas.left + canvas.width;
 canvas.top = document.querySelector("canvas").offsetTop;
 canvas.bottom = canvas.top + canvas.height;
 
-var x = 480;
-var y = 710;
-var dx = 5;
-
-var xProj = 480;
-var yProj = 710;
-var vx = 3;
-var vy = -3;
-
-function drawPacman() {
-    ctx.beginPath();
-    ctx.arc(x, y, 20, (Math.PI/180)*290, (Math.PI/180)*250, false);
-    ctx.lineTo(x, y);
-    ctx.fill();
-    ctx.closePath();
+let pacman = {
+    x : 480,
+    y : 710,
+    dx : 5,
+    radius : 20,
+    draw : function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, (Math.PI/180)*290, (Math.PI/180)*250, false);
+        ctx.lineTo(this.x, this.y);
+        ctx.fill();
+        ctx.closePath();
+    }
 }
 
-function drawProjectile() {
-    ctx.beginPath();
-    ctx.arc(xProj, (yProj + 2), 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.closePath();
+let projectile = {
+    xProj : 480,
+    yProj : 710,
+    vx : 3,
+    vy : -3,
+    radius : 4,
+    draw : function() {
+        ctx.beginPath();
+        ctx.arc(this.xProj, (this.yProj + 2), this.radius, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+    }
 }
 
 function drawGhost() {
@@ -78,23 +81,11 @@ function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    drawPacman();
+    pacman.draw();
 
-    drawProjectile();
-    xProj += vx;
-    yProj += vy;
-
-    /*if ((x + 20) < (canvas.width - 10)) {
-        x += dx;
-    }
-    if ((x + 20) == (canvas.width - 10)) {
-        dx = -5;
-        x += dx;
-    }
-    if ((x - 20) == 10) {
-        dx = 5;
-        x += dx;
-    }*/
+    projectile.draw();
+    projectile.xProj += projectile.vx;
+    projectile.yProj += projectile.vy;
 
     drawGhost();
 
@@ -103,13 +94,13 @@ function draw() {
 }
 
 canvas.addEventListener('mousemove', function(e) {
-    x = e.clientX - canvas.left;
+    pacman.x = e.clientX - canvas.left;
 
-    if ((x - 20) <= 0) {
-        x = 20;
+    if ((pacman.x - 20) <= 0) {
+        pacman.x = 20;
     }
-    else if ((x + 20) >= canvas.width) {
-        x = canvas.width - 20;
+    else if ((pacman.x + 20) >= canvas.width) {
+        pacman.x = canvas.width - 20;
     }
 });
 
