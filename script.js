@@ -21,11 +21,13 @@ let pacman = {
     radius : 20,
     draw : function() {
         ctx.beginPath();
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "yellow";
+        ctx.strokeStyle = "black";
         ctx.arc(this.x, this.y, this.radius, (Math.PI/180)*290, (Math.PI/180)*250, false);
         ctx.lineTo(this.x, this.y);
         ctx.fill();
         ctx.closePath();
+        ctx.stroke();
     }
 }
 
@@ -71,11 +73,13 @@ class Ghost {
         this.x = x;
         this.y = y;
         this.speed = 5;
-        this.color = 'black';
+        this.colors = ["#ffc8dd", "#ff0033", "#b2f0f1", "#fdd24b"];
+        this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
     }
     draw() {
         ctx.beginPath();
         ctx.fillStyle = this.color;
+        ctx.strokeStyle = "black";
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y-14);
         ctx.bezierCurveTo(this.x, this.y-22, this.x+6, this.y-28, this.x+14, this.y-28);
@@ -88,8 +92,10 @@ class Ghost {
         ctx.lineTo(this.x+4.666, this.y-4.667);
         ctx.lineTo(this.x, this.y); //
         ctx.fill();
+        ctx.stroke();
 
         ctx.fillStyle = "white";
+        ctx.strokeStyle = "black";
         ctx.beginPath();
         ctx.moveTo(this.x+8, this.y-20);
         ctx.bezierCurveTo(this.x+6, this.y-20, this.x+4, this.y-17, this.x+4, this.y-15);
@@ -102,15 +108,20 @@ class Ghost {
         ctx.bezierCurveTo(this.x+23, this.y-10, this.x+24, this.y-13, this.x+24, this.y-15);
         ctx.bezierCurveTo(this.x+24, this.y-17, this.x+23, this.y-20, this.x+20, this.y-20);
         ctx.fill();
+        ctx.stroke();
 
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = "black";
         ctx.beginPath();
         ctx.arc(this.x+18, this.y-14, 2, 0, Math.PI * 2, true);
         ctx.fill();
+        ctx.stroke();
 
+        ctx.strokeStyle = "black";
         ctx.beginPath();
         ctx.arc(this.x+6, this.y-14, 2, 0, Math.PI * 2, true);
         ctx.fill();
+        ctx.stroke();
     }
     getId(){
         return this.id;
