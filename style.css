@@ -9,5 +9,6 @@ section {
 
 canvas {
   border: solid 0.1px black;
+  cursor: crosshair;
 }
 /*# sourceMappingURL=style.css.map */

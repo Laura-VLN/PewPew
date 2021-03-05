@@ -11,10 +11,8 @@ canvas.bottom = canvas.top + canvas.height;
 let projectiles = [];
 let projectiles_count = 0;
 let ghosts = [];
-let ghosts_count = 0;
-
-let randomX = (Math.floor(Math.random() * 960) + 40);
-let randomY = (Math.floor(Math.random() * 335) + 40);
+let ghostsCount = 0;
+let ghostsAppearingSpeed = 2000;
 
 let pacman = {
     x : 480,
@@ -23,6 +21,7 @@ let pacman = {
     radius : 20,
     draw : function() {
         ctx.beginPath();
+        ctx.fillStyle = "black";
         ctx.arc(this.x, this.y, this.radius, (Math.PI/180)*290, (Math.PI/180)*250, false);
         ctx.lineTo(this.x, this.y);
         ctx.fill();
@@ -30,15 +29,23 @@ let pacman = {
     }
 }
 
+const GAME = {
+    restart : () => {
+        document.location.reload();
+    },
+    playable : true,
+}
+
 class Projectile {
-    constructor(id, x, y, v_projectile) {
+    constructor(id, x, y, vProjectile) {
         this.id = id;
         this.posX = x;
         this.posY = y;
-        this.speed = v_projectile;
+        this.speed = vProjectile;
     }
     draw() {
         ctx.beginPath();
+        ctx.fillStyle = "black";
         ctx.arc(this.posX, (this.posY + 2), 4, 0, Math.PI*2);
         ctx.fill();
         ctx.closePath();
@@ -51,6 +58,11 @@ class Projectile {
         this.draw();
         projectiles_count += 1;
     }
+    destroy(){
+        if (this.posY < 0) {
+            projectiles.shift()
+        };
+    }
 }
 
 class Ghost {
@@ -58,9 +70,12 @@ class Ghost {
         this.id = id;
         this.x = x;
         this.y = y;
+        this.speed = 5;
+        this.color = 'black';
     }
     draw() {
         ctx.beginPath();
+        ctx.fillStyle = this.color;
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y-14);
         ctx.bezierCurveTo(this.x, this.y-22, this.x+6, this.y-28, this.x+14, this.y-28);
@@ -88,7 +103,7 @@ class Ghost {
         ctx.bezierCurveTo(this.x+24, this.y-17, this.x+23, this.y-20, this.x+20, this.y-20);
         ctx.fill();
 
-        ctx.fillStyle = "black";
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x+18, this.y-14, 2, 0, Math.PI * 2, true);
         ctx.fill();
@@ -97,44 +112,83 @@ class Ghost {
         ctx.arc(this.x+6, this.y-14, 2, 0, Math.PI * 2, true);
         ctx.fill();
     }
+    getId(){
+        return this.id;
+    }
     create() {
         ghosts.push(this);
-        ghosts_count -+ 1;
+        ghostsCount += 1;
         this.draw;
+
+        if(ghostsAppearingSpeed >= 0){
+            ghostsAppearingSpeed -= 100;
+        }
     }
     destroy() {
-        ghosts.shift(this);
+        let index = ghosts.findIndex(x => x.id === this.id);
+        ghosts.splice(index, 1);
+    }
+    goToPlayer(){
+        let opposite = pacman.x - this.x
+        let adjacent = pacman.y - this.y
+        let hypo = Math.sqrt((opposite)**2 + (adjacent)**2)
+        let angle = Math.atan(opposite/adjacent)        
+        
+        this.x += this.speed * Math.sin(angle)
+        this.y += this.speed * Math.cos(angle)
+
+
+        if(this.y > canvas.bottom ){
+            this.destroy();
+        }
+
+        if(hypo < 100){
+            this.color = "red";
+        }
+        
+        if(hypo <= 28){
+            GAME.playable = false;
+            document.querySelector('section').innerHTML = '<h1 style="color: red; font-size: 50px; text-align: center; ">YOU LOOSE !</h1>';
+            setTimeout(function(){
+                GAME.restart();
+            },1000);
+        }
     }
 }
 
-function projectileDestroy() {
-    if (projectile.posY < 0) {projectiles.shift()};
-}
-
-function ghostRepop() {
-    if (projectile.posX >= ghost.x && projectile.posX <= ghost.x+28 && projectile.posY >= ghost.y) {
-        ghost.destroy();
-        ghost.draw();
+setInterval(() => {
+    ghost = new Ghost(ghostsCount, Math.floor(Math.random() * 960) + 40, Math.floor(Math.random() * 335) + 40);
+    if(ghosts.length < 10){
+        ghost.create();
     }
-}
-console.log(ghosts)
+}, ghostsAppearingSpeed);
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     pacman.draw();
-    ghost = new Ghost(ghosts_count, randomX, randomY);
-    ghost.draw();
     
+    ghosts.forEach(ghost => {
+        ghost.draw();
+        ghost.goToPlayer();
+    });
+
     projectiles.forEach(projectile => {
         projectile.draw();
         projectile.move();
-        projectileDestroy();
-        ghostRepop();
+        projectile.destroy();
+
+        ghosts.forEach(ghost => {
+            id = ghost.getId();
+            if(projectile.posX >= ghost.x && projectile.posX <= ghost.x+28 && projectile.posY <= ghost.y) {
+                ghost.destroy();
+            }
+        });
     });
 
-    window.requestAnimationFrame(draw); //plus fluide que setInterval -> s'adapte aux capacités du navigateur
-
+    if(GAME.playable){
+        window.requestAnimationFrame(draw); //plus fluide que setInterval -> s'adapte aux capacités du navigateur
+    }
 }
 
 canvas.addEventListener('mousemove', function(e) {
@@ -148,7 +202,7 @@ canvas.addEventListener('mousemove', function(e) {
 });
 
 canvas.addEventListener('click', () => {
-    projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 3);
+    projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 10);
     projectile.create()
 });
 
