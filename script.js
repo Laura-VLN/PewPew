@@ -13,12 +13,16 @@ let projectiles_count = 0;
 let ghosts = [];
 let ghostsCount = 0;
 let ghostsAppearingSpeed = 2000;
+let counter = 0;
 
 let pacman = {
     x : 480,
     y : 710,
     dx : 5,
     radius : 20,
+    speed : 10,
+    moving : false,
+    direction : 0,
     draw : function() {
         ctx.beginPath();
         ctx.fillStyle = "yellow";
@@ -28,6 +32,21 @@ let pacman = {
         ctx.fill();
         ctx.closePath();
         ctx.stroke();
+    },
+    move : function() {
+        if (pacman.moving) {
+            if (this.x - this.radius < 0) {
+                this.x = this.radius * 2;
+                this.direction = 0;
+            }
+            else if (this.x + this.radius > canvas.width) {
+                this.x = canvas.width - this.radius * 2;
+                this.direction = 0;
+            }
+            else {
+                this.x += this.speed * this.direction;
+            }
+        }
     }
 }
 
@@ -138,6 +157,8 @@ class Ghost {
     destroy() {
         let index = ghosts.findIndex(x => x.id === this.id);
         ghosts.splice(index, 1);
+        counter += 1;
+        console.log(counter)
     }
     goToPlayer(){
         let opposite = pacman.x - this.x
@@ -157,7 +178,7 @@ class Ghost {
             this.color = "red";
         }
         
-        if(hypo <= 28){
+        if(hypo <= 25){
             GAME.playable = false;
             document.querySelector('section').innerHTML = '<h1 style="color: red; font-size: 50px; text-align: center; ">YOU LOOSE !</h1>';
             setTimeout(function(){
@@ -178,6 +199,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     pacman.draw();
+    pacman.move();
     
     ghosts.forEach(ghost => {
         ghost.draw();
@@ -197,24 +219,25 @@ function draw() {
         });
     });
 
+    window.addEventListener('keydown', event => {
+        if (event.code == "Space") {
+            projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 10);
+            projectile.create();
+        }
+        pacman.moving = true;
+        switch(event.code) {
+            case "ArrowLeft" :
+                pacman.direction = -1;
+                break
+            case "ArrowRight" :
+                pacman.direction = 1;
+                break
+        }
+    })
+
     if(GAME.playable){
-        window.requestAnimationFrame(draw); //plus fluide que setInterval -> s'adapte aux capacités du navigateur
+        window.requestAnimationFrame(draw);
     }
 }
-
-canvas.addEventListener('mousemove', function(e) {
-    pacman.x = e.clientX - canvas.left;
-    if ((pacman.x - 20) <= 0) {
-        pacman.x = 20;
-    }
-    else if ((pacman.x + 20) >= canvas.width) {
-        pacman.x = canvas.width - 20;
-    }
-});
-
-canvas.addEventListener('click', () => {
-    projectile = new Projectile(projectiles_count, pacman.x, pacman.y, 10);
-    projectile.create()
-});
 
 window.requestAnimationFrame(draw);
